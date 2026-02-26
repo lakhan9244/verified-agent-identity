@@ -110,7 +110,7 @@ function urlFormating(title, url) {
 }
 
 function codeFormating(data) {
-  return `\`\`\`${data}\`\`\``;
+  return `\\\`\\\`\\\`${data}\\\`\\\`\\\``;
 }
 
 function sendDirectMessage(target, message) {
