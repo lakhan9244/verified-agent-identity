@@ -1,15 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * getDidDocument.js - Gets the DID document for a given DID
- *
- * Usage:
- *   node scripts/getDidDocument.js --did <did>
- *   node scripts/getDidDocument.js (uses default DID)
- *
- * Output: JSON object with didDocument and did fields
- */
-
 const { getInitializedRuntime } = require("./shared/bootstrap");
 const {
   parseArgs,

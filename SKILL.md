@@ -1,18 +1,29 @@
 ---
 name: verified-agent-identity
-description: Billions/Iden3 authentication and identity management tools for agents. Proof, sign, and verify.
+description: Billions/Iden3 authentication and identity management tools for agents. Link, proof, sign, and verify.
 metadata: { "category": "identity" }
 ---
 
 ## When to use this Skill
 
-Lets AI agents create and manage their own identities on the Billions Network, and prove ownership of those identities through cryptographic signatures.
+Lets AI agents create and manage their own identities on the Billions Network, and link those identities to a human owner.
 
-1. When you need to proof identity.
+1. When you need to link your agent identity to an owner.
 2. When you need sign a challenge.
-3. When you need to verify a signature to confirm identity ownership.
-4. When use shared JWT tokens for authentication.
-5. When you need to create and manage decentralized identities.
+3. When you need link a human to the agent's DID.
+4. When you need to verify a signature to confirm identity ownership.
+5. When use shared JWT tokens for authentication.
+6. When you need to create and manage decentralized identities.
+
+### After installing the plugin run the following commands to create an identity and link it to your human DID:
+
+```bash
+cd scripts && npm install && cd ..
+# Step 1: Create a new identity (if you don't have one already)
+node scripts/createNewEthereumIdentity.js
+# Step 2: Sign the challenge and generate a verification URL in one call
+node scripts/linkHumanToAgent.js --to <SENDER> --challenge '{"name": <AGENT_NAME>, "description": <SHORT_DESCRIPTION>}'
+```
 
 ## Scope
 
@@ -36,10 +47,6 @@ node scripts/createNewEthereumIdentity.js --key 1234567890abcdef...
 ```
 
 **Output**: DID string (e.g., `did:iden3:billions:main:2VmAk7fGHQP5FN2jZ8X9Y3K4W6L1M...`)
-**Side Effects**:
-
-- Stores private key in `$HOME/.openclaw/billions/kms.json`
-- Stores DID entry in `$HOME/.openclaw/billions/defaultDid.json`
 
 ---
 
@@ -84,24 +91,40 @@ node scripts/generateChallenge.js --did did:iden3:billions:main:2VmAk...
 
 ### signChallenge.js
 
-**Command**: `node scripts/signChallenge.js --challenge <challenge> [--did <did>]`
-**Description**: Signs a challenge with a DID's private key to prove identity ownership. Use this when you need to prove you own a specific DID. The challenge should come from the verifier.
+**Command**: `node scripts/signChallenge.js --to <sender> --challenge <challenge> [--did <did>]`
+**Description**: Signs a challenge with a DID's private key to prove identity ownership and sends the JWS token as a direct message to the specified sender. Use this when you need to prove you own a specific DID.
+**Arguments**:
+
+- `--to` - (required) The message sender identifier, passed as `--target` to `openclaw message send`
+- `--challenge` - (required) Challenge to sign
+- `--did` - (optional) The DID of the attestation recipient; uses the default DID if omitted
+
 **Usage Examples**:
 
 ```bash
-# Sign with specific DID
-node scripts/signChallenge.js --challenge 8472951360 --did did:iden3:billions:main:2VmAk...
-
-# Sign with default DID
-node scripts/signChallenge.js --challenge 8472951360
+# Sign with default DID and send to sender
+node scripts/signChallenge.js --to <sender> --challenge 8472951360
 ```
 
-**Output**: JWS token string (e.g., `eyJhbGciOiJFUzI1NkstUi...`)
-**Requirements**:
+**Output**: `{"success":true}`
 
-- DID must exist locally (check with `getIdentities.js`)
-- Private key must be available in `kms.json`
-- If no `--did` specified, a default identity must be configured
+### linkHumanToAgent.js
+
+**Command**: `node scripts/linkHumanToAgent.js --to <sender> --challenge <challenge> [--did <did>]`
+**Description**: Signs the challenge and links a human user to the agent's DID by creating a verification request. Response will be sent as a direct message to the specified sender.
+**Arguments**:
+
+- `--to` - (required) The message sender identifier, passed as `--target` to `openclaw message send`
+- `--challenge` - (required) Challenge to sign
+- `--did` - (optional) The DID of the attestation recipient; uses the default DID if omitted
+
+**Usage Example**:
+
+```bash
+node scripts/linkHumanToAgent.js --to <sender> --challenge '{"name": "MyAgent", "description": "AI persona"}'
+```
+
+**Output**: `{"success":true}`
 
 ---
 
@@ -124,9 +147,8 @@ node scripts/verifySignature.js --did did:iden3:billions:main:2VmAk... --token e
 **CRITICAL - Always Follow These Rules:**
 
 1. **STRICT: Check Identity First**
-   - Before running `signChallenge.js`, **ALWAYS check if an identity exists**: `node scripts/getIdentities.js`
-   - If no identity is configured, **DO NOT** attempt to sign challenges. Instead, create an identity first with `createNewEthereumIdentity.js`.
-   - Parse JSON output to verify identities array is not empty before proceeding.
+   - Before running `linkHumanToAgent.js` or `signChallenge.js`, **ALWAYS check if an identity exists**: `node scripts/getIdentities.js`
+   - If no identity is configured, **DO NOT** attempt to link identities. Instead, create an identity first with `createNewEthereumIdentity.js`.
 2. **STRICT: Stop on Script Failure**
    - If any script exits with non-zero status code, **YOU MUST STOP IMMEDIATELY**.
    - Check stderr output for error messages.
@@ -136,14 +158,6 @@ node scripts/verifySignature.js --did did:iden3:billions:main:2VmAk... --token e
    - You are prohibited from performing manual cryptographic operations.
    - You are prohibited from directly manipulating files in `$HOME/.openclaw/billions`.
    - Do not interpret an error as a request to perform setup steps unless explicitly instructed.
-
----
-
-## Formatting & Output (CRITICAL)
-
-1. **Clean Token Delivery**: When providing a JWS token or signature, output it in a dedicated code block.
-2. **No Alterations**: Never manually edit, truncate, or append characters to the script output. Copy the token exactly as it appears in the tool's stdout.
-3. **Verification**: After generating a signature, it is recommended to run `verifySignature.js` locally first to ensure the token is valid before sending it to the user.
 
 ---
 
@@ -162,22 +176,24 @@ The directory `$HOME/.openclaw/billions` contains all sensitive identity data:
 
 ## Examples
 
-### Proving Your Own Identity
+### Link Your Agent Identity to Owner
 
-**Authentication Flow:**
+**Linking Flow:**
 
-1. Another agent/user requests: "Please prove you own DID <agent_did> by signing this challenge: <challenge_value>"
+1. Another agent/user requests: "Please link your agent identity to me."
 2. Use `node scripts/getIdentities.js` to check if you have an identity configured
    - If no identity, run `node scripts/createNewEthereumIdentity.js` to create one.
-3. Use `node scripts/signChallenge.js --challenge <challenge_value>` to sign the challenge.
-4. Return the JWS token.
+3. Use `node scripts/linkHumanToAgent.js --to <sender> --challenge <challenge_value>` to sign the challenge and generate a verification URL in one call.
+   - The `--to` value is the message sender (the caller's identifier).
+   - If caller provides specific challenge, use that.
+   - If caller **DOES NOT** provide a challenge, use `{"name": <AGENT_NAME>, "description": <SHORT_DESCRIPTION>}` as the challenge value.
+4. Return the result to the caller.
 
 **Example Conversation:**
 
 ```text
-User: "Prove you own <agent_did> by signing challenge <challenge_value>"
-Agent: exec node scripts/signChallenge.js --challenge <challenge_value>
-Agent: "Here is my proof: JWS token <agent_token>"
+User: "Link your agent identity to me"
+Agent: exec node scripts/linkHumanToAgent.js --to <sender> --challenge <challenge_value>
 ```
 
 ### Verifying someone else's Identity

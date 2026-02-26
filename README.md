@@ -4,9 +4,29 @@ A decentralized identity management toolkit for AI agents using iden3 protocol o
 
 ## Overview
 
-This skill enables AI agents to create, manage, prove and verify ownership of decentralized identities (DIDs) using cryptographic signatures.
+This skill enables AI agents to create, manage, link, prove and verify ownership of decentralized identities (DIDs) using cryptographic signatures.
 
 ## Installation
+
+### Agent CTA:
+
+1. Ask bot to install the skill:
+
+   ```plaintext
+   Install the skill `npx clawhub@latest install verified-agent-identity`
+   ```
+
+   Or
+
+   ```plaintext
+   Install the `verified-agent-identity` skill from the OpenClaw clawhub.ai.
+   ```
+
+2. (Optional) If the verification process did not start automatically after installation, ask your bot to initialize the process by sending a message like:
+
+   ```plaintext
+   Please link your agent identity to me.
+   ```
 
 ### Human CTA:
 
@@ -28,20 +48,19 @@ This skill enables AI agents to create, manage, prove and verify ownership of de
    node scripts/createNewEthereumIdentity.js --key <your-ethereum-private-key>
    ```
 
-### Agent CTA:
+3. Generate a verification link to connect your human identity to the agent:
 
-```plaintext
-Install the skill `npx clawhub@latest install verified-agent-identity`
-```
+   ```bash
+   node scripts/manualLinkHumanToAgent.js --challenge '{"name": "Agent Name", "description": "Short description of the agent"}'
+   ```
 
-```plaintext
-Install the `verified-agent-identity` skill from the OpenClaw clawhub.ai.
-```
+   This prints the verification URL to the console. Open it in your browser to complete the identity linking process.
 
 ## Features
 
 - **Identity Creation**: Generate new DIDs with random or existing Ethereum private keys
 - **Identity Management**: List and manage multiple identities with default identity support
+- **Human-Agent Linking**: Link a human identity to an agent's DID through signed challenges
 - **Proof Generation**: Generate cryptographic proofs to authenticate as a specific identity
 - **Proof Verification**: Verify proofs to confirm identity ownership
 

@@ -1,13 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * verifySignature.js - Verifies a signed challenge token
- *
- * Usage: node scripts/verifySignature.js --did <did> --token <token>
- *
- * Output: Success message if verification passes
- */
-
 const { JWSPacker, byteEncoder } = require("@0xpolygonid/js-sdk");
 const { getInitializedRuntime } = require("./shared/bootstrap");
 const { parseArgs, formatError, outputSuccess } = require("./shared/utils");

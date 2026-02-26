@@ -1,15 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * createNewEthereumIdentity.js - Creates a new Ethereum-based identity
- *
- * Usage:
- *   node scripts/createNewEthereumIdentity.js --key <privateKeyHex>
- *   node scripts/createNewEthereumIdentity.js (generates random key)
- *
- * Output: DID string (did:iden3:billions:main:...)
- */
-
 const { KmsKeyType, hexToBytes } = require("@0xpolygonid/js-sdk");
 const { DidMethod, Blockchain, NetworkId } = require("@iden3/js-iden3-core");
 const { SigningKey, Wallet, JsonRpcProvider } = require("ethers");

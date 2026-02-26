@@ -16,11 +16,15 @@ function addHexPrefix(keyId) {
   return keyId.startsWith("0x") ? keyId : `0x${keyId}`;
 }
 
+function buildEthereumAddressFromDid(did) {
+  const ethereumAddress = Id.ethAddressFromId(DID.idFromDID(DID.parse(did)));
+  return `0x${bytesToHex(ethereumAddress)}`;
+}
+
 /**
  * Creates a W3C DID document for an Ethereum-based identity
  */
 function createDidDocument(did, publicKeyHex) {
-  const ethereumAddress = Id.ethAddressFromId(DID.idFromDID(DID.parse(did)));
   return {
     "@context": [
       "https://www.w3.org/ns/did/v1",
@@ -32,7 +36,7 @@ function createDidDocument(did, publicKeyHex) {
         id: `${did}#ethereum-based-id`,
         controller: did,
         type: "EcdsaSecp256k1RecoveryMethod2020",
-        ethereumAddress: `0x${bytesToHex(ethereumAddress)}`,
+        ethereumAddress: buildEthereumAddressFromDid(did),
         publicKeyHex: publicKeyHex,
       },
     ],
@@ -50,7 +54,7 @@ function normalizedKeyPath(keyType, keyID) {
 /**
  * Creates an Authorization Response Message for challenge signing
  */
-function getAuthResponseMessage(did, challenge, didDocument) {
+function getAuthResponseMessage(did, challenge) {
   const { PROTOCOL_CONSTANTS } = require("@0xpolygonid/js-sdk");
   return {
     id: uuid(),
@@ -62,7 +66,6 @@ function getAuthResponseMessage(did, challenge, didDocument) {
     body: {
       message: challenge,
       scope: [],
-      did_doc: didDocument,
     },
   };
 }
@@ -102,6 +105,19 @@ function outputSuccess(data) {
   }
 }
 
+function urlFormating(title, url) {
+  return `[${title}](${url})`;
+}
+
+function codeFormating(data) {
+  return `\`\`\`${data}\`\`\``;
+}
+
+function sendDirectMessage(target, message) {
+  const { execSync } = require("child_process");
+  execSync(`openclaw message send --target ${target} --message "${message}"`);
+}
+
 module.exports = {
   normalizeKey,
   addHexPrefix,
@@ -111,4 +127,8 @@ module.exports = {
   parseArgs,
   formatError,
   outputSuccess,
+  buildEthereumAddressFromDid,
+  urlFormating,
+  codeFormating,
+  sendDirectMessage,
 };

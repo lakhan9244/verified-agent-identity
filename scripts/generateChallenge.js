@@ -1,13 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * generateChallenge.js - Generates a random challenge for a DID
- *
- * Usage: node scripts/generateChallenge.js --did <did>
- *
- * Output: Challenge string (number as string)
- */
-
 const { randomInt } = require("crypto");
 const { getInitializedRuntime } = require("./shared/bootstrap");
 const { parseArgs, formatError, outputSuccess } = require("./shared/utils");

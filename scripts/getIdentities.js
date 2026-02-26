@@ -1,13 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * getIdentities.js - Lists all DID identities
- *
- * Usage: node scripts/getIdentities.js
- *
- * Output: JSON array of DID entries
- */
-
 const { getInitializedRuntime } = require("./shared/bootstrap");
 const { formatError, outputSuccess } = require("./shared/utils");
 
