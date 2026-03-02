@@ -13,6 +13,6 @@ export const accept = [
 export const nullifierSessionId = "240416041207230509012302";
 export const pouScopeId = 1; // keccak256(nullifierSessionId)
 export const pouAllowedIssuer = [
-  "did:iden3:billions:main:2VvfhfQUT6Dvv8iDLj8gnmsXEuRZcQUpPVsFdREn6J",
+  "did:iden3:billions:main:2VwqkgA2dNEwsnmojaay7C5jJEb8ZygecqCSU3xVfm",
 ];
 export const authScopeId = 2;
